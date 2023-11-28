@@ -53,7 +53,7 @@ def blackJackValueCalculator(rank: Rank) -> List[int]:
     value = values[rank: Rank]
     return value
 
-@dataclass(forzen=True)
+@dataclass(forzen=True, eq=True)
 class Card:
     '''
     Class to represent a card
@@ -67,7 +67,7 @@ class Card:
 
     rank: Rank
     suit: Suit
-    rank_value_calculator: Callable[[Rank], List[int]]
+    rank_value_calculator: Callable[[Rank], List[int]] # may move this to the game class
 
     @cached_property
     def rank_value(self):
