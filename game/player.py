@@ -1,7 +1,9 @@
-from typing import List# Protocol
+from typing import List, Protocol
 from dataclasses import dataclass
 from enum import Enum
 from game.card import Card
+from game.observer.observer import Observer
+from game.observer.subject import Subject
 
 class PlayerAction(Enum):
     HIT = 'Hit'
@@ -10,17 +12,32 @@ class PlayerAction(Enum):
     DOUBLE = 'DOUBLE'
 
 @dataclass
-class Player:
+class Player(Subject, Observer):
     name: str
     bankroll: int
-    hand: List[Card]
+    hand: List[List[Card]]
     bet: int
+
+    def attach(self, observer: Observer) -> None:
+        """
+        Attach an observer to the subject.
+        """
+        pass
+
+    def detach(self, observer: Observer) -> None:
+        pass
+
+    def notify(self) -> None:
+        """
+        Notify all observers about an event.
+        """
+        pass
 
     def bet(self) -> None:
         # bet money for the current hand
         # update the game what the bet is
         pass
-
+    
     def action(self) -> None:
         # update the game what the player action is
         pass
