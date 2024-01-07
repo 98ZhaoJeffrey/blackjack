@@ -1,0 +1,3 @@
+
+class HandSplitException(Exception):
+    pass
