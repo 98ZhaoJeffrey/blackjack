@@ -1,15 +1,9 @@
 from typing import List, Dict, Optional, Protocol, Any
 from dataclasses import dataclass
-from enum import Enum
 from blackjack_game.hand import Hand
+from blackjack_game.actions import PlayerAction
 from blackjack_game.observer.observer import Observer
 from blackjack_game.observer.subject import Subject
-
-class PlayerAction(Enum):
-    HIT = 'Hit'
-    STAND = 'Stand'
-    SPLIT = 'Split'
-    DOUBLE = 'DOUBLE'
 
 @dataclass
 class Player(Subject, Protocol):

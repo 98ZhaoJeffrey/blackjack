@@ -1,15 +1,13 @@
 from enum import Enum
 from typing import List, Dict, Optional, Any
 from dataclasses import dataclass
-from blackjack_game.actions import generate_valid_player_actions
+from blackjack_game.actions import generate_valid_player_actions, PlayerAction
 from blackjack_game.player import Player
 from blackjack_game.deck import Deck
 from blackjack_game.hand import Hand
-from blackjack_game.player import PlayerAction
 from blackjack_game.observer.observer import Observer
 from blackjack_game.observer.subject import Subject
-from blackjack_game.blackjack_deck_generators.default_blackjack_deck_generator import Default_BlackJack_Deck_Generator
-from blackjack_game.deck_generators.default_deck_generator import Default_Deck_Generator
+
 
 @dataclass
 class Game(Subject):
@@ -197,5 +195,5 @@ class Game(Subject):
         """
         Sets up the game of BlackJack
         """
-        self.deck = Deck(number_decks=8, _blackjack_deck_builder=Default_BlackJack_Deck_Generator(), _deck_builder=Default_Deck_Generator())
+        self.deck = Deck(number_decks=8)
 

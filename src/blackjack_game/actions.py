@@ -1,21 +1,16 @@
-from typing import List
-from blackjack_game.hand import Hand
-from blackjack_game.player import PlayerAction
+from __future__ import annotations
+from typing import List, TYPE_CHECKING
+from enum import Enum
+if TYPE_CHECKING:
+    from blackjack_game.hand import Hand
 
-def default_split_rule(hand: Hand) -> bool:
-    """
-    Checks if the hand can be split
+class PlayerAction(Enum):
+    HIT = 'Hit'
+    STAND = 'Stand'
+    SPLIT = 'Split'
+    DOUBLE = 'DOUBLE'
 
-    Args:
-        hand (Hand): The hand we want to check if can split
-
-    Returns:
-        bool: Can we split this hand
-
-    """
-    return len(hand.cards) == 2 and hand.cards[0].rank == hand.cards[1].rank
-
-def generate_valid_player_actions(hand: Hand) -> List[PlayerAction]:
+def generate_valid_player_actions(hand: 'Hand') -> List[PlayerAction]:
     """
     Generate all possible actions possible from a given hand
 
@@ -27,7 +22,7 @@ def generate_valid_player_actions(hand: Hand) -> List[PlayerAction]:
 
     """
     turn_ended = hand.is_standing or hand.is_doubled or hand.is_busted
-    can_split = default_split_rule(hand)
+    can_split = hand.split_rule.can_split_cards(hand)
     if(turn_ended):
         return []
     if(can_split):

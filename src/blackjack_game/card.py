@@ -53,7 +53,7 @@ def blackJackValueCalculator(rank: Rank) -> List[int]:
     value = values[rank]
     return value
 
-@dataclass(eq=True)
+@dataclass(frozen=True, eq=True)
 class Card:
     '''
     Class to represent a card
@@ -73,4 +73,4 @@ class Card:
         return self.rank_value_calculator(self.rank)
     
     def __str__(self):
-        return 'f{self.rank} of f{self.suit}'
+        return f'{self.rank} of {self.suit}'
