@@ -8,7 +8,7 @@ class PlayerAction(Enum):
     HIT = 'Hit'
     STAND = 'Stand'
     SPLIT = 'Split'
-    DOUBLE = 'DOUBLE'
+    DOUBLE = 'Double'
 
 def generate_valid_player_actions(hand: 'Hand') -> List[PlayerAction]:
     """

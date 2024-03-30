@@ -1,22 +1,19 @@
 from enum import Enum
 from typing import List, Dict, Optional, Any
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from blackjack_game.actions import generate_valid_player_actions, PlayerAction
 from blackjack_game.player import Player
 from blackjack_game.deck import Deck
 from blackjack_game.hand import Hand
-from blackjack_game.observer.observer import Observer
-from blackjack_game.observer.subject import Subject
-
+from blackjack_game.observer.observer_subject import Observer, Subject
 
 @dataclass
 class Game(Subject):
 
-    players: List[Player]
-    current_player: int
-    dealers_hand: Hand
     deck: Deck
-    observers: List[Observer]
+    players: List[Player] = field(default_factory=list)
+    dealers_hand: Hand = field(default_factory=Hand)
+    observers: List[Observer] = field(default_factory=list)
     DEALER_STOPS_HIITING = 17
 
     def attach(self, observer: Observer) -> None:
@@ -55,20 +52,21 @@ class Game(Subject):
         """
         for player in self.players:
             top_card = self.deck.deal()
-            #top_card.flip_card()
-            player.hands[0].cards.append(top_card)
+            player.hands = []
+            player.hands.append(Hand(cards=[top_card]))
         
-        self.dealers_hand.cards.append(self.deck.deal())
+        self.dealers_hand = Hand()
+        self.dealers_hand.add_card(self.deck.deal())
         
         for player in self.players:
             top_card = self.deck.deal()
             #top_card.flip_card()
-            player.hands[0].cards.append(top_card)
+            player.hands[0].add_card(top_card)
         
-        self.dealers_hand.cards.append(self.deck.deal())
+        self.dealers_hand.add_card(self.deck.deal())
         #self.dealers_hand[0].flip_card()
 
-    def _perform_dealer_action(self, actions: List[PlayerAction]) -> List[Hand]:
+    def _perform_dealer_action(self, player: Player, actions: List[PlayerAction]) -> List[Hand]:
         """
             Perform the corresponding action based on the user's current action for the hand
 
@@ -80,7 +78,6 @@ class Game(Subject):
         """
         # splitting hand requires us to insert in middle of list, not a good idea with for loop
         new_hands = []
-        player = self.players[self.current_player]
         for action, hand in zip(actions, player.hands):
             new_hands.append(hand)
             if(action == PlayerAction.HIT):
@@ -133,9 +130,12 @@ class Game(Subject):
 
         all_dealers_value = self.dealers_hand.get_valid_hand_values()
         max_dealers_value = max(all_dealers_value) if all_dealers_value else 0
-
         for hand in hands:
-            max_hand_value = max(hand.get_valid_hand_values())
+            values = hand.get_valid_hand_values()
+            if(not values):
+                payouts.append(-1)
+                continue
+            max_hand_value = max(values)
             lost_game = hand.is_busted or max_hand_value  < max_dealers_value
             tied_game = max_hand_value == max_dealers_value
             won_game = max_hand_value >= max_dealers_value
@@ -145,7 +145,20 @@ class Game(Subject):
                 payouts.append(0)
             elif(won_game):
                 payouts.append(1) 
-        return payouts    
+
+            if(hand.is_doubled):
+                payouts[-1] = payouts[-1] * 2
+        return payouts   
+
+    def _handle_payouts(self) -> None: 
+        """
+            Uses the payouts to change the bankroll of each player
+        """
+        for player in self.players:
+            payouts = self._create_payouts(player.hands)
+            for payout in payouts:
+                player.modify_bankroll(payout * player.bet)
+
 
 
     def play_hand(self) -> None:
@@ -169,7 +182,7 @@ class Game(Subject):
                     if(not hand.get_valid_hand_values()):
                         hand.is_busted = True
 
-            player_actions = []
+            all_player_actions = []
             for player in self.players:
                 curr_player_actions = []
                 for hand in player.hands:
@@ -177,23 +190,20 @@ class Game(Subject):
                     if(not valid_actions):
                         completed_hands += 1
                         continue
-                    curr_player_actions.append(player.make_action(valid_actions))
-                player_actions.append(curr_player_actions)
+                    action = player.make_action(valid_actions)
+                    curr_player_actions.append(action)
+                all_player_actions.append(curr_player_actions)
 
-            for player, actions in zip(self.players, player_actions):
-                player.hands = self._perform_dealer_action(actions)
+            for player, actions in zip(self.players, all_player_actions):
+                if(actions):
+                    player.hands = self._perform_dealer_action(player, actions)
             
         self._play_dealers_hand()
+        self._handle_payouts()
 
+    def player_statistics(self) -> dict:
+        res = {}
         for player in self.players:
-            payouts = self._create_payouts(player.hands)
-            for payout in payouts:
-                player.modify_bankroll(payout * player.bet)
-
-
-    def setup_game(self) -> None:
-        """
-        Sets up the game of BlackJack
-        """
-        self.deck = Deck(number_decks=8)
+            res[player.name] = player.bankroll
+        return res
 

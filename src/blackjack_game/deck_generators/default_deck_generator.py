@@ -1,6 +1,7 @@
 from typing import List
 from blackjack_game.deck_generators.deck_generator import Deck_Generator
 from blackjack_game.card import Card, Rank, Suit
+from random import shuffle
 
 class Default_Deck_Generator(Deck_Generator):
     """
@@ -17,4 +18,5 @@ class Default_Deck_Generator(Deck_Generator):
         for rank in Rank:
             for suit in Suit:
                 deck.append(Card(rank, suit))
+        shuffle(deck)
         return deck

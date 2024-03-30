@@ -1,17 +1,17 @@
-from typing import List, Dict, Optional, Protocol, Any
-from dataclasses import dataclass
+from abc import abstractmethod, ABC
+from typing import List, Dict, Optional, Any
+from dataclasses import dataclass, field
 from blackjack_game.hand import Hand
 from blackjack_game.actions import PlayerAction
-from blackjack_game.observer.observer import Observer
-from blackjack_game.observer.subject import Subject
+from blackjack_game.observer.observer_subject import Observer, Subject
 
 @dataclass
-class Player(Subject, Protocol):
+class Player(Subject, ABC):
     name: str
     bankroll: int
-    hands: List[Hand]
-    bet: int
-    observers: List[Observer]
+    hands: List[Hand] = field(default_factory=list)
+    bet: int = 0
+    observers: List[Observer] = field(default_factory=list)
 
     def attach(self, observer: Observer) -> None:
         """
@@ -41,6 +41,7 @@ class Player(Subject, Protocol):
         """
         self.bet = bet
     
+    @abstractmethod
     def make_action(self, actions: List[PlayerAction]) -> PlayerAction:
         """
             Ask player for action

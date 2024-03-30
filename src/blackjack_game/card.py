@@ -25,7 +25,7 @@ class Rank(Enum):
     QUEEN = 'Queen'
     KING = 'King'
 
-def blackJackValueCalculator(rank: Rank) -> List[int]:
+def black_jack_value_calculator(rank: Rank) -> List[int]:
     '''
     Returns a list of all possible values that a rank can be
 
@@ -66,7 +66,7 @@ class Card:
     '''
     rank: Rank
     suit: Suit
-    rank_value_calculator: Callable[[Rank], List[int]] = blackJackValueCalculator # may move this to the game class
+    rank_value_calculator: Callable[[Rank], List[int]] = black_jack_value_calculator # may move this to the game class
 
     @cached_property
     def rank_value(self):
